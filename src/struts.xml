@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+	
+	<struts>
+		
+		<!-- 配置开发模式 -->
+		<constant name="struts.devMode" value="true"></constant>
+		<!-- struts2的核心配置文件自动重修加载 -->
+		<constant name="struts.configuration.xml.reload" value="true"></constant>
+			
+		<package name="bawei" namespace="/" extends="struts-default">
+			<action name="xk_*" class="com.kuwei.action.XkAction" method="{1}">
+				<result name="list">/WEB-INF/view/list.jsp</result>
+				<result name="add">/WEB-INF/view/add.jsp</result>
+				<result name="update">/WEB-INF/view/update.jsp</result>
+				<result name="refresh" type="redirectAction">xk_list</result>
+			</action>
+		</package>
+	
+	</struts>

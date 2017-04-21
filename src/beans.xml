@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+	
+	
+	<!-- 告诉spring哪些类要被扫描 
+		扫描当前包下的类，子包的类，孙子包下面的类...，如果发现有注解，就自动转换成bean ，
+	-->
+	<context:component-scan base-package="com.kuwei"></context:component-scan>
+	
+	<!-- 引入资源文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	
+	<!-- 1.配置数据源 -->
+	<bean id="ds" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${jdbc.driver}"></property>
+		<property name="url" value="${jdbc.url}"></property>
+		<property name="username" value="${jdbc.user}"></property>
+		<property name="password" value="${jdbc.pwd}"></property>
+	</bean>
+	
+	<!-- 配置sessionFactory -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="ds"></property>
+		
+		<!-- hibernatePropertie属性名称来配置hibernate框架的对应配置项
+		例如：hibernate.dialect
+		hibernate.show_sql
+		hibernate.hbm2ddl.auto
+		 -->
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				 <!-- 配置线程绑定的Session
+					factory.openSession ： 开启事务/操作/提交事务/关闭session
+					getCurrentSession : 获取一个和线程绑定的Session，不需要自己去开启/提交数据，线程结束之后，自动关闭session
+				 -->
+				 
+				 <!-- CurrentSession相当于之前的session后者模板对象，作用都是操作数据库当中的数据的，基本都是增删该查 -->
+				 <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
+			</props>
+		</property>
+		
+		<!-- 声明子映射文件的位置，项目在启动的时候会去指定的路径下去加载所有符合条件的子映射文件。 -->
+		<property name="mappingLocations" value="classpath:com/kuwei/dto/*.hbm.xml"></property>
+	</bean>
+	
+	<!-- 配置事务 -->
+	<bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!-- 使用Spring的注解来开启事务 -->
+	<tx:annotation-driven transaction-manager="txManager"/>
+	
+</beans>
